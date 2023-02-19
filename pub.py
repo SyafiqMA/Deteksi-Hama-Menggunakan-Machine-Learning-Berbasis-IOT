@@ -31,7 +31,7 @@ warnings.filterwarnings("ignore")
    
 
 def predict():
-    model3 = pickle.load(open('gradientBoots.sav', 'rb'))
+    model3 = pickle.load(open('Adaboost-kfold.sav', 'rb'))
     TESTING_DIR = os.path.join('test')
     IMG_SIZE = (224, 224)
     IMG_SHAPE = IMG_SIZE + (3,)
@@ -44,17 +44,22 @@ def predict():
     test_labels = []
 
 
-    for directory_path in glob.glob('./test/*'):
-        label = directory_path.split("/")[-1]
-        for img_path in glob.glob(os.path.join(directory_path, "*.jpg")):
-            img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-            img = cv2.resize(img, IMG_SIZE)
-            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            test_images.append(img)
-            test_labels.append(label)
+    for img_path in glob.glob('./hasil/*'):
+        # print(img_path)
+        # label = directory_path.split("/")[-1]
+        # print(img_path)
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = cv2.resize(img, IMG_SIZE)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        test_images.append(img)
+        # test_labels.append(label)
+        # label = ['test\Worms', 'test\healthy']
+        # print(label)
+        # for img_path in glob.glob(os.path.join(directory_path, "*.jpg")):
+
 
     test_images = np.array(test_images)
-    test_labels = np.array(test_labels)
+    # test_labels = np.array(test_labels)
     
     
     le = preprocessing.LabelEncoder()
@@ -79,7 +84,7 @@ def predict():
 
 broker = 'broker.emqx.io'
 port = 1883
-topic1 = "detect/jagung"
+topic1 = "detect/maize"
 # topic0 = "detect/healthy"
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
@@ -111,7 +116,7 @@ def publish(client):
         deteksi = []
         for i in pred:
             if (i == 0):
-                j = 'hama'
+                j ='Worms'
                 deteksi.append(j)
             else:
                 j = 'healthy'
@@ -119,8 +124,8 @@ def publish(client):
         print (deteksi)
     
         for x in deteksi:
-            if (x == 'hama'):
-                msg = "hama"
+            if (x == 'Worms'):
+                msg = "Worms"
                 result = client.publish(topic1, msg)
                 status = result[0]
                 if status == 0:
